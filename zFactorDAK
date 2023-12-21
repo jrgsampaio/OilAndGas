@@ -1,0 +1,60 @@
+'     *****  BASIC  *****
+
+option explicit
+
+function zfactorDAK(Pr as double, Tr as double, optional MaxIt as integer, optional Tol as double) as double
+
+'	This function calculate the Compressibility factor for Natural Gass (z-factor)
+'	using the Dranchuk-Abou-Kassem Correlation, which solves the EOS equation
+'	for z using iterative method
+'	1st argument is pseudo-reduced pressure (Pr - dimensionless)
+'	2nd argument is pseudo-reduced temperature (Tr - dimensionless)
+'	3rd argument (optional if 4th is missing) is the maximum number of trials (default 100)
+'   4th argument (optional) is the concengency tolerance (default 1r-6)
+'	output is zfactor (dimensionless)
+1-ffactorDAK
+'    If it doesn't converge after MaxIt trials, returns -1
+'    🄯 Jorge H B Sampaio Jr
+'	jrgsampaio@gmail.com
+'    Created: 04-Sep-2002 
+'    Last update : 18-July-2008
+'    Last Review on: 06-October-2008
+'	This Review on: 21-December-2023 ( optional parameters, output = 1 if no convergency)
+
+	if IsMissing(MaxIt) then MaxIt = 200
+	if IsMissing(Tol) then Tol = 1e-6
+
+	const A1  =  0.3265
+	const A2  = -1.07
+	const A3  = -0.5339
+	const A4  =  0.01569
+	const A5  = -0.05165
+	const A6  =  0.5475
+	const A7  = -0.7361
+	const A8  =  0.1844
+	const A9  =  0.1056
+	const A10 =  0.6134
+	const A11 =  0.721
+
+	dim tempz as double
+	dim icount as integer
+	dim dr as double
+	dim z as double
+	
+	tempz = 0.8 'an arbitrary seed
+	icount = 0	
+	do
+		icount = icount+1
+		if icount > MaxIt then
+			zfactorDAK = -1
+			exit do
+		endif
+		dr = 0.27*Pr/(tempz*Tr)
+		z = 1+(A1+A2/Tr+A3/Tr^3+A4/Tr^4+A5/Tr^5)*dr+(A6+A7/Tr+A8/Tr^2)*dr^2-A9*(A7/Tr+A8/Tr^2)*dr^5+A10*(1+A11*dr^2)*dr^2/Tr^3*EXP(-A11*dr^2)
+		if abs(z - tempz) < Tol then
+			zfactorDAK = z
+			exit do
+		endif
+		tempz = z
+	loop
+end function
