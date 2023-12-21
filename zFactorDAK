@@ -4,21 +4,20 @@ option explicit
 
 function zfactorDAK(Pr as double, Tr as double, optional MaxIt as integer, optional Tol as double) as double
 
-'	This function calculate the Compressibility factor for Natural Gass (z-factor)
+'	This function calculates the Compressibility factor for Natural Gas (z-factor)
 '	using the Dranchuk-Abou-Kassem Correlation, which solves the EOS equation
-'	for z using iterative method
+'	for z using iterative method.
 '	1st argument is pseudo-reduced pressure (Pr - dimensionless)
 '	2nd argument is pseudo-reduced temperature (Tr - dimensionless)
-'	3rd argument (optional if 4th is missing) is the maximum number of trials (default 100)
-'   4th argument (optional) is the concengency tolerance (default 1r-6)
+'	3rd argument (optional if 4th is missing) is the maximum number of trials (default 200)
+'	4th argument (optional) is the concengency tolerance (default 1e-6)
 '	output is zfactor (dimensionless)
-1-ffactorDAK
-'    If it doesn't converge after MaxIt trials, returns -1
-'    🄯 Jorge H B Sampaio Jr
+'	If it doesn't converge after MaxIt trials, returns -1
+'	🄯 Jorge H B Sampaio Jr
 '	jrgsampaio@gmail.com
-'    Created: 04-Sep-2002 
-'    Last update : 18-July-2008
-'    Last Review on: 06-October-2008
+'	Created: 04-Sep-2002 
+'	Last update : 18-July-2008
+'	Last Review on: 06-October-2008
 '	This Review on: 21-December-2023 ( optional parameters, output = 1 if no convergency)
 
 	if IsMissing(MaxIt) then MaxIt = 200
