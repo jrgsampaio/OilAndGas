@@ -19,6 +19,9 @@ function zfactorDAK(Pr as double, Tr as double, optional MaxIt as integer, optio
 '	Last update : 18-July-2008
 '	Last Review on: 06-October-2008
 '	This Review on: 21-December-2023 ( optional parameters, output = 1 if no convergency)
+'
+'	GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+'	The GNU General Public License is a free, copyleft license for software and other kinds of works.
 
 	if IsMissing(MaxIt) then MaxIt = 200
 	if IsMissing(Tol) then Tol = 1e-6
