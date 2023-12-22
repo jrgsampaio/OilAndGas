@@ -30,7 +30,7 @@ function zfactorDAK(Pr as double, Tr as double, optional Seed as double, optiona
 '	1st argument is pseudo-reduced pressure (Pr - dimensionless)
 '	2nd argument is the pseudo-reduced temperature (Tr - dimensionless)
 '	3rd argument (optional if 4th is missing) is the Seed to start the iterative process (default 0.8)
-'		The seed is helpful when a previous z was founf for nearby Pr and/or Tr
+'		The seed is helpful when a previous z was found for nearby Pr and/or Tr
 '	4th argument (optional if 5th is missing) is the maximum number of trials (default 200)
 '	5th argument (optional) is the convengency relative tolerance (default 1e-6)
 '	output is zfactor (dimensionless)
