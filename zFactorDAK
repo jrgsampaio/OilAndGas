@@ -1,62 +1,80 @@
-'     *****  BASIC  *****
-
+' *****  BASIC  *****
 option explicit
 
-function zfactorDAK(Pr as double, Tr as double, optional MaxIt as integer, optional Tol as double) as double
+' Constants used in the DAK correlation
+const A1  =  0.3265
+const A2  = -1.07
+const A3  = -0.5339
+const A4  =  0.01569
+const A5  = -0.05165
+const A6  =  0.5475
+const A7  = -0.7361
+const A8  =  0.1844
+const A9  =  0.1056
+const A10 =  0.6134
+const A11 =  0.721
+'--------------------------------------
+
+private function DAK(byval z as double, byval Pr as double, byval Tr as double) as double
+'  This is the Dranchuk-Abou-Kassem Correlation
+	dim dr as double
+	dr = 0.27*Pr/(z*Tr)
+	DAK = 1.0+(A1+A2/Tr+A3/Tr^3+A4/Tr^4+A5/Tr^5)*dr+(A6+A7/Tr+A8/Tr^2)*dr^2-A9*(A7/Tr+A8/Tr^2)*dr^5+A10*(1+A11*dr^2)*dr^2/Tr^3*EXP(-A11*dr^2)
+end function
+
+function zfactorDAK(Pr as double, Tr as double, optional Seed as double, optional MaxIt as integer, optional Tol as double) as double
 
 '	This function calculates the Compressibility factor for Natural Gas (z-factor)
 '	using the Dranchuk-Abou-Kassem Correlation, which solves the EOS equation
-'	for z using iterative method.
+'	for z using iterative Newton-Raphson Method
 '	1st argument is pseudo-reduced pressure (Pr - dimensionless)
-'	2nd argument is pseudo-reduced temperature (Tr - dimensionless)
-'	3rd argument (optional if 4th is missing) is the maximum number of trials (default 200)
-'	4th argument (optional) is the concengency tolerance (default 1e-6)
+'	2nd argument is the pseudo-reduced temperature (Tr - dimensionless)
+'	3rd argument (optional if 4th is missing) is the Seed to start the iterative process (default 0.8)
+'		The seed is helpful when a previous z was founf for nearby Pr and/or Tr
+'	4th argument (optional if 5th is missing) is the maximum number of trials (default 200)
+'	5th argument (optional) is the convengency relative tolerance (default 1e-6)
 '	output is zfactor (dimensionless)
 '	If it doesn't converge after MaxIt trials, returns -1
 '	🄯 Jorge H B Sampaio Jr
 '	jrgsampaio@gmail.com
 '	Created: 04-Sep-2002 
 '	Last update : 18-July-2008
-'	Last Review on: 06-October-2008
-'	This Review on: 21-December-2023 ( optional parameters, output = 1 if no convergency)
+'	Review on: 06-October-2008
+'	Review on: 21-December-2023 (optional parameters, output = -1 if no convergency)
+'	Review on: 22-December-2023 (optional Seed as the initial value for z
+'	Review on: 22-December-2023 (introduved the private function DAK to promote the use of the Newton-Raphson scheme)
+'	Review on: 22-December-2023 (Newton-Raphson method introduced to replace the simple Substitution scheme)
+'			The function to find the root is g(z) = f(z)- z where f(z is the the recursive DAK formula
+'			the N-R method uses the iteration  zₙ₊₁ = zₙ - g(zₙ)/g'(zₙ)
+'			The derivative g'(zₙ) is approximated by the central derivative
+'				g'(zₙ) = f'(zₙ) - 1 = (f(zₙ+ε) - f(zₙ-ε))/2ε 
 '
 '	GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 '	The GNU General Public License is a free, copyleft license for software and other kinds of works.
-
+'
+	const Eps = 0.005 ' used in the Newton-Raphson scheme
+	if IsMissing(Seed) then Seed = 0.8
 	if IsMissing(MaxIt) then MaxIt = 200
 	if IsMissing(Tol) then Tol = 1e-6
 
-	const A1  =  0.3265
-	const A2  = -1.07
-	const A3  = -0.5339
-	const A4  =  0.01569
-	const A5  = -0.05165
-	const A6  =  0.5475
-	const A7  = -0.7361
-	const A8  =  0.1844
-	const A9  =  0.1056
-	const A10 =  0.6134
-	const A11 =  0.721
-
-	dim tempz as double
+	dim last_z as double
 	dim icount as integer
 	dim dr as double
 	dim z as double
-	
-	tempz = 0.8 'an arbitrary seed
+
+    z = Seed
 	icount = 0	
 	do
 		icount = icount+1
 		if icount > MaxIt then
-			zfactorDAK = -1
-			exit do
+			zfactorDAK = -1 ' returns -1 if no convergence occurs
+			exit function
 		endif
-		dr = 0.27*Pr/(tempz*Tr)
-		z = 1+(A1+A2/Tr+A3/Tr^3+A4/Tr^4+A5/Tr^5)*dr+(A6+A7/Tr+A8/Tr^2)*dr^2-A9*(A7/Tr+A8/Tr^2)*dr^5+A10*(1+A11*dr^2)*dr^2/Tr^3*EXP(-A11*dr^2)
-		if abs(z - tempz) < Tol then
+		last_z = z	
+		z = z - (DAK(z,Pr,Tr)-z)/((DAK(z+Eps,Pr, Tr)-DAK(z-Eps,Pr,Tr))/(2*Eps) - 1) ' Newton-Raphson Method
+		if abs(z/last_z - 1.0) < Tol then
 			zfactorDAK = z
-			exit do
+			exit function
 		endif
-		tempz = z
 	loop
 end function
