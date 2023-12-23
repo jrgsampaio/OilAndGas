@@ -1,0 +1,85 @@
+function ZFactorNN5(Pr as double, Tr as double) as double
+
+'	This function calculate the z-factor using a 2x5x5x1 Artificial Neural Network
+'	developped by by Sampaio, Kamyab, & Qanbari (DOI: 10.1016/j.petrol.2010.07.006)
+'	based on training data obtained from Standing&Katz chart for compressibility factor for natural gases 
+'	(Standing, M.B., and D. L. Katz: Density of Natural Gase, Trans. AIME, 146: 140 (1942) )
+'	1st argument is pseudo-reduced pressure
+'	2nd argument is pseudo-reduced temperature
+'	output is zfactor
+'	It always produces a result, but accuracy is controled for 0<Pr<15 and 1.05<Tr<3
+'	🄯 Jorge H B Sampaio Jr
+'	jrgsampaio@gmail.com
+'	Created: 28-Nov-2008
+'	Last update : 12-Dec-2023
+'	Review on: 07-Mar-2009
+'	Review on: 12-Dec-2023 (Putting the Arrays in Base 0)
+'	Review on: 12-Dec-2023 (Using Arrays of Arrays to load the data.)
+'
+'	GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+'	The GNU General Public License is a free, copyleft license for software and other kinds of works.
+'
+	dim i as integer
+	dim j as integer
+	dim acc as double
+	dim Pmax as double
+	dim Pmin as double
+	dim Tmax as double
+	dim Tmin as double
+	dim Zmax as double
+	dim Zmin as double
+	dim L0(2) as double
+	dim W1 'as double
+	dim L1(5) as double
+	dim W2 '(4,5) as double
+	dim L2(5) as double
+	dim W3 '(0,5) as double
+	dim L3(1) as double
+
+	Pmax=30
+	Pmin=0
+	Tmax=3
+	Tmin=1.0
+	Zmax=2.66
+	Zmin=0.25194
+
+	W1 = Array(Array ( 7.2925, -1.5949, 7.9284), Array (2.221, -1.7917, 1.2117), Array(-0.9846, 5.3547, -4.5424), Array(8.9966, 4.6209, 2.2228), Array(-1.5063, -2.3577, -0.1499))
+
+	W2 = Array(Array( 2.0626,  2.3617, -4.0858,   1.2062,   -1.1518, -1.2915), Array(95.1393, 10.0141,  9.8649, -11.4445, -123.0698,   7.5898), _
+						 Array(93.8916, 10.4103, 14.1358, -10.9061, -125.5468,  6.3448), Array(-9.9439, -1.7794, 14.0742,  -1.4195,   12.0894, -15.4537), _
+						 Array(-8.3371, -0.5988, -0.4354,  -0.3360,    9.9429, -0.4029))
+
+	W3 = Array(Array(2.8462, 1.4979, -37.4660, 37.7958, -7.7463, 6.9079))
+
+	L0(0) = 1.0
+	L0(1) = 2*(Pr-Pmin)/(Pmax-Pmin) - 1
+	L0(2) = 2*(Tr-Tmin)/(Tmax-Tmin) - 1
+
+	L1(0) = 1.0
+	FOR i=0 to 4
+		acc = 0
+		for j=0 to 2
+			acc = acc + W1(i)(j) * L0(j)
+		next j
+		L1(i+1) = 1/(1+exp(-acc))
+	next i
+
+	L2(0) = 1.0
+	FOR i=0 to 4
+		acc = 0
+		for j=0 to 5
+			acc = acc + W2(i)(j) * L1(j)
+		next j
+		L2(i+1) = 1/(1+exp(-acc))
+	next i
+
+	L2(0) = 1.0  'This is just for consistency
+	FOR i=0 to 0 'This is just for consistency
+		acc = 0
+		for j=0 to 5
+			acc = acc + W3(i)(j) * L2(j)
+		next j
+		L3(i+1) = acc '1/(1+exp(-acc))
+	next i
+	ZFactorNN5 = (L3(1)+1)/2 *(Zmax-Zmin) + Zmin
+end function
