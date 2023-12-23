@@ -28,28 +28,28 @@ end function
 function zfactorDAK(Pr as double, Tr as double, optional Seed as double, optional MaxIt as integer, optional Tol as double) as double
 
 '	This function calculates the Compressibility factor for Natural Gas (z-factor)
-'	using the Dranchuk-Abou-Kassem Correlation, which solves the EOS equation
-'	for z using iterative Newton-Raphson Method
-'	1st argument is pseudo-reduced pressure (Pr - dimensionless)
+'	using the Dranchuk-Abou-Kassem Correlation, which solves the EOS equation for z
+'	iteratively using the Newton-Raphson schems to estimate the next value of z.
+'	1st argument is the        pseudo-reduced pressure (Pr - dimensionless)
 '	2nd argument is the pseudo-reduced temperature (Tr - dimensionless)
 '	3rd argument (optional if 4th is missing) is the Seed to start the iterative process (default 0.8)
 '		The seed is helpful when a previous z was found for nearby Pr and/or Tr
 '	4th argument (optional if 5th is missing) is the maximum number of trials (default 200)
-'	5th argument (optional) is the convengency relative tolerance (default 1e-6)
-'	output is zfactor (dimensionless)
-'	If it doesn't converge after MaxIt trials, returns -1
+'	5th argument (optional) is the convergency relative tolerance (default 1e-6)
+'	function return is the zfactor (dimensionless)
+'	If the iteration scheme doesn't converge after MaxIt trials, returns -1
 '	🄯 Jorge H B Sampaio Jr
 '	jrgsampaio@gmail.com
 '	Created: 04-Sep-2002 
-'	Last update : 18-July-2008
+'	Last update : 22-December-2022
 '	Review on: 06-October-2008
 '	Review on: 21-December-2023 (optional parameters, output = -1 if no convergency)
 '	Review on: 22-December-2023 (optional Seed as the initial value for z
 '	Review on: 22-December-2023 (introduved the private function DAK to promote the use of the Newton-Raphson scheme)
 '	Review on: 22-December-2023 (Newton-Raphson method introduced to replace the simple Substitution scheme)
-'			The function to find the root is g(z) = f(z)- z where f(z is the the recursive DAK formula
-'			the N-R method uses the iteration  zₙ₊₁ = zₙ - g(zₙ)/g'(zₙ)
-'			The derivative g'(zₙ) is approximated by the central derivative
+'			The function to find the root is g(z) = f(z)- z where z depends on itself by the function f(z)
+'			The N-R method uses the iteration  zₙ₊₁ = zₙ - g(zₙ)/g'(zₙ)
+'			where the derivative g'(zₙ) is approximated by the central derivative
 '				g'(zₙ) = f'(zₙ) - 1 = (f(zₙ+ε) - f(zₙ-ε))/2ε 
 '
 '	GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
