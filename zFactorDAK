@@ -35,7 +35,7 @@ function zfactorDAK(Pr as double, Tr as double, optional Seed as double, optiona
 '	3rd argument (optional if 4th is missing) is the Seed to start the iterative process (default 0.8)
 '		The seed is helpful when a previous z was found for nearby Pr and/or Tr
 '	4th argument (optional if 5th is missing) is the maximum number of trials (default 200)
-'	5th argument (optional) is the convergency relative tolerance (default 1e-6)
+'	5th argument (optional) is the convergency tolerance (default 1e-6)
 '	function return is the zfactor (dimensionless)
 '	If the iteration scheme doesn't converge after MaxIt trials, returns -1
 '	🄯 Jorge H B Sampaio Jr
@@ -64,18 +64,17 @@ function zfactorDAK(Pr as double, Tr as double, optional Seed as double, optiona
 	dim icount as integer
 	dim dr as double
 	dim z as double
-
-    z = Seed
+	z = Seed
 	icount = 0	
 	do
 		icount = icount+1
-		if icount > MaxIt then
+		if icount > MaxIt then	'the code steps into here if it does not converge in MaxIt iterations
 			zfactorDAK = -1 ' returns -1 if no convergence occurs
 			exit function
 		endif
-		last_z = z	
-		z = z - (DAK(z,Pr,Tr)-z)/((DAK(z+Eps,Pr, Tr)-DAK(z-Eps,Pr,Tr))/(2*Eps) - 1) ' Newton-Raphson Scheme
-		if abs(z/last_z - 1.0) < Tol then
+		last_z = z	' save previous value of z
+		z = z - (DAK(z,Pr,Tr)-z)/((DAK(z+Eps,Pr, Tr)-DAK(z-Eps,Pr,Tr))/(2*Eps) - 1) ' new z from Newton-Raphson Scheme
+		if abs(z/last_z - 1.0) < Tol then	' Test the fractional error with the tolerance and exit if it passes
 			zfactorDAK = z
 			exit function
 		endif
