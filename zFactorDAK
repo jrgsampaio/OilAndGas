@@ -3,7 +3,7 @@ option explicit
 
 ' Constants used in the DAK correlation
 const A1  =  0.3265
-const A2  = -1.07
+const A2  = -1.070
 const A3  = -0.5339
 const A4  =  0.01569
 const A5  = -0.05165
@@ -12,11 +12,14 @@ const A7  = -0.7361
 const A8  =  0.1844
 const A9  =  0.1056
 const A10 =  0.6134
-const A11 =  0.721
+const A11 =  0.7210
 '--------------------------------------
 
 private function DAK(byval z as double, byval Pr as double, byval Tr as double) as double
 '  This is the Dranchuk-Abou-Kassem Correlation
+'  Because z (DAK) depends itself on z, a recurrence is required. 
+'  A simple substitution would be fine (use a calculated z to calculate again). 
+'  The following procedure use a Newton-Raphson scheme fo calculate the new z.
 	dim dr as double
 	dr = 0.27*Pr/(z*Tr)
 	DAK = 1.0+(A1+A2/Tr+A3/Tr^3+A4/Tr^4+A5/Tr^5)*dr+(A6+A7/Tr+A8/Tr^2)*dr^2-A9*(A7/Tr+A8/Tr^2)*dr^5+A10*(1+A11*dr^2)*dr^2/Tr^3*EXP(-A11*dr^2)
@@ -71,7 +74,7 @@ function zfactorDAK(Pr as double, Tr as double, optional Seed as double, optiona
 			exit function
 		endif
 		last_z = z	
-		z = z - (DAK(z,Pr,Tr)-z)/((DAK(z+Eps,Pr, Tr)-DAK(z-Eps,Pr,Tr))/(2*Eps) - 1) ' Newton-Raphson Method
+		z = z - (DAK(z,Pr,Tr)-z)/((DAK(z+Eps,Pr, Tr)-DAK(z-Eps,Pr,Tr))/(2*Eps) - 1) ' Newton-Raphson Scheme
 		if abs(z/last_z - 1.0) < Tol then
 			zfactorDAK = z
 			exit function
