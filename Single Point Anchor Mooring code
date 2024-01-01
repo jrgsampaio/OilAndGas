@@ -1,0 +1,105 @@
+REM  *****  BASIC  *****
+option explicit
+
+function SXC(Y as double, A as double, L as double, optional Seed as double)
+'  This function solves the Single Point Anchor Mooring problem for a homogeneous chain (contant linear weight).
+'  The solution is based on finding the root of the following function:
+'
+'  (L-A)/ Y = (sinh(ξ) - ξ) / (cosh(ξ) - 1)					(1)
+'  where
+'    L = length of the mooring line (can be changed)
+'    A = horizontal departure of the anchor to the ship reel (can change with the motion of the vessel)
+'    Y = anchor depth (considered contant, although it might change with tide)
+'    (in the following, (L-A)/Y = k)
+'    ξ = X/c where
+'      X is the horizontal distance of the mooring line tangent point to the vessel and
+'      c = H/w, where
+'      H is the horizontal component of the chain tension at the reel (constant along the line to the point of tangency) and
+'      w is the linear weight of the mooring chain.
+'
+'  Equation 1 is solved for its root ξ using Newton-Raphson (N-R) by re-writing it as
+'    g(ξ)  = (sinh(ξ) - ξ) / (cosh(ξ) - 1) - k = f(ξ) - k
+'    For N-R, I use its derivative g'(ξ) = f'(ξ) = 1 -  (sinh(ξ) × (sinh(ξ) - ξ)) / (cosh(ξ) - 1)²
+'  When ξ is found, the mooring parameters are obtained from:
+'    c = Y / (cosh(ξ) - 1)
+'    X = c × ξ
+'    S =  c × sinh(ξ)
+'    H = w × c
+'  where
+'    X, c, H,  and w are defined above
+'    S is the length os the suspended mooring line (from the vessel reel to the contact point.
+'  Note also that the following relationship exist:  L-A = S-X
+'
+'  For a full description of these functions, please see the preprint in ResearchGate DOI: 10.13140/RG.2.2.26286.48965
+'  LicenseCC BY-NC-SA 4.0  
+'
+'	🄯 Jorge Hygino Braga Sampaio Jr.
+'	jrgsampaio@gmail.com
+'	Created on 05-Jun-2009
+'	Modification on 10-Jun-2009 - (added N-R)
+'	Modification on  13-Jun-2009 - (added Lmin)
+'	Last Modification  29-Dec-2023 - (some improvements)
+
+'	GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+'	The GNU General Public License is a free, copyleft license for software and other kinds of works.
+
+	const MaxIt = 100
+	const Tol = 1e-6
+	dim Xi as double, oldXi as double
+	dim k as double
+	dim icount as integer
+	dim S as double ' Length of the suspended cable
+	dim X as double ' Distance ot the Tangency point
+	dim C as double ' Ratio H/w
+	
+	if IsMissing(Seed)  or Seed< 0.001 then Seed = 0.001 'although the seed could be zero, it would cause an error in the calculation of the fractional error
+	k = (L-A)/Y
+	Xi = Seed
+	icount = 0
+	do
+		icount = icount + 1
+		if icount > MaxIt then
+			print  icount
+			exit function
+		endif
+		oldXi = Xi
+		Xi = Xi - (f(Xi) - k)/ df(Xi)		' Newton-Raphson scheme
+		if abs(XI/oldXI -1) < Tol then Exit do
+	loop
+	C = Y/(cosh(XI)-1)
+	S = C * sinh(XI)
+	X = S - (L-A)
+	SXC = Array(XI, S, X, C, sinh(XI), icount, (L-A)-(S-X)) 'the function return an array containing all the parameters calculated
+end function
+
+' The following two functions are defined to be used in the Newton-Raphson scheme used in the function SXC above
+function f(x) as double
+	f = 0.0
+	if x<>0.0 then f= ( (sinh(x) - x) / (cosh(x) - 1.0) )
+end function
+function df(x) as double 'derivative od f(x) above
+	df = 1.0/3.0
+	if x<>0.0 then df = 1 - sinh(x) *(sinh(x) - x)/(cosh(x)-1)^2
+end function
+
+'------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+function Lmin(Y as double, A as double)
+'	This is a companion function to the SXC function above. 
+'	It calculates the minimum length of a mooring cable such that the tangent point is close to or at the position of the anchor.
+'
+	dim icount as integer
+	dim Xi as double, oldXi as double
+	const MaxIt as integer = 100
+	const Tol as double = 1e-6
+	
+	Xi= 1
+	icount = 0
+	do
+		icount = icount + 1
+		if icount > MaxIt then exit function
+		oldXi = Xi
+		Xi = Xi - (A/Y*(cosh(Xi)-1)-Xi)/ (A/Y*sinh(Xi) - 1) 'Newton-Rphaon scheme
+		if abs(Xi/oldXi - 1) < Tol then exit do
+	loop
+	Lmin = Array(A/Xi*sinh(Xi),icount)
+end function
