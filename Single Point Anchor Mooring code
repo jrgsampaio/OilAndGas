@@ -2,36 +2,36 @@ REM  *****  BASIC  *****
 option explicit
 
 function SXC(Y as double, A as double, L as double, optional Seed as double)
-'  This function solves the Single Point Anchor Mooring problem for a homogeneous chain (contant linear weight).
-'  The solution is based on finding the root of the following function:
+'	This function solves the Single Point Anchor Mooring problem for a homogeneous chain (constant linear weight).
+'	The solution is based on finding the root of the following function:
+'		(L-A)/Y = (sinh(ξ)-ξ)/(cosh(ξ)-1)	(1)
+'	where
+'	L = length of the mooring line (can be changed)
+'	A = horizontal departure of the anchor to the ship reel (can change with the motion of the vessel)
+'	Y = anchor depth (considered contant, although it might change with tide)
+'	ξ = X/c where
+'	X is the horizontal distance of the mooring line tangent point to the vessel and
+'	c = H/w, where
+'	H is the horizontal component of the chain tension at the reel (constant along the line to the point of tangency) and
+'	w is the linear weight ot the mooring chain.
+'	In the following, (L-A)/Y = k
 '
-'  (L-A)/Y = (sinh(ξ)-ξ) / (cosh(ξ)-1)					(1)
-'  where
-'    L = length of the mooring line (can be changed)
-'    A = horizontal departure of the anchor to the ship reel (can change with the motion of the vessel)
-'    Y = anchor depth (considered contant, although it might change with tide)
-'    (in the following, (L-A)/Y = k)
-'    ξ = X/c where
-'      X is the horizontal distance of the mooring line tangent point to the vessel and
-'      c = H/w, where
-'    	H is the horizontal component of the chain tension at the reel (constant along the line to the point of tangency) and
-'      	w is the linear weight of the mooring chain.
+'	Equation (1) is solved for its root ξ using Newton-Raphson (N-R) by re-writing it as
+'		g(ξ)  = (sinh(ξ) - ξ) / (cosh(ξ) - 1) - k  =  f(ξ) - k
+'	For N-R, I use its derivative
+'	g'(ξ) = f'(ξ) = 1 -  (sinh(ξ) × (sinh(ξ) - ξ)) / (cosh(ξ) - 1)²
+'	When ξ is found, the mooring parameters are obtained from:
+'		c = Y/(cosh(ξ)-1)
+'		X = c×ξ
+'		S = c×sinh(ξ)
+'		H = w×c
+'	where
+'		X, c, H,  and w are defined above
+'		S is the length os the suspended mooring line (from the vessel reel to the contact point).
+'	Note also that the following relationship exist:  L-A = S-X
 '
-'  Equation (1) is solved for its root ξ using Newton-Raphson (N-R) by re-writing it as
-'    g(ξ)  = (sinh(ξ) - ξ) / (cosh(ξ) - 1) - k = f(ξ) - k
-'    For N-R, I use its derivative g'(ξ) = f'(ξ) = 1 - (sinh(ξ)×(sinh(ξ)-ξ))/(cosh(ξ)-1)²
-'  When ξ is found, the mooring parameters are obtained from:
-'    c = Y/(cosh(ξ)-1)
-'    X = c×ξ
-'    S = c×sinh(ξ)
-'    H = w×c
-'  where
-'    X, c, H, and w are defined above
-'    S is the length os the suspended mooring line (from the vessel reel to the contact point.
-'  Note also that the following relationship exist: L-A = S-X
-'
-'  For a full description of these functions, please see the preprint in ResearchGate DOI: 10.13140/RG.2.2.26286.48965
-'  LicenseCC BY-NC-SA 4.0
+'	For a full description of these functions, please see the preprint in ResearchGate DOI: 10.13140/RG.2.2.26286.48965
+'	LicenseCC BY-NC-SA 4.0
 '
 '	🄯 Jorge Hygino Braga Sampaio Jr.
 '	jrgsampaio@gmail.com
