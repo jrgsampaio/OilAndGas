@@ -1,6 +1,6 @@
 REM  *****  BASIC  *****
 option explicit
-' This code is written in LibreOffice Macro Basis. It can be uses in Excel with minimum or no adaptation
+' This code is written in LibreOffice Macro Basic. It can be uses in Excel with minimum or no adaptation.
 ' In LibreOffice the functions SINH and COSH must be defined - If needed, contact me.
 function SXC(Y as double, A as double, L as double, optional Seed as double)
 '	This function solves the Single Point Anchor Mooring problem for a homogeneous chain (constant linear weight).
