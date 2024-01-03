@@ -1,21 +1,21 @@
 REM  *****  BASIC  *****
 option explicit
-' This code is written in LibreOffice Macro Basic. It can be uses in Excel with minimum or no adaptation.
-' In LibreOffice the functions SINH and COSH must be defined - If needed, contact me.
+' This code is written in LibreOffice Macro Basic. It can be used in Excel with minimum or no adaptation.
+' In LibreOffice, the functions SINH and COSH must be defined - If needed, contact me.
 function SXC(Y as double, A as double, L as double, optional Seed as double)
 '	This function solves the Single Point Anchor Mooring problem for a homogeneous chain (constant linear weight).
 '	The solution is based on finding the root of the following function:
-'		(L-A)/Y = (sinh(ξ)-ξ)/(cosh(ξ)-1)	(1)
+'		k = (sinh(ξ)-ξ)/(cosh(ξ)-1)	(1)
 '	where
 '	L = length of the mooring line (can be changed)
 '	A = horizontal departure of the anchor to the ship reel (can change with the motion of the vessel)
 '	Y = anchor depth (considered contant, although it might change with tide)
+'	k = (L-A)/Y = k
 '	ξ = X/c where
-'	X is the horizontal distance of the mooring line tangent point to the vessel and
-'	c = H/w, where
-'	H is the horizontal component of the chain tension at the reel (constant along the line to the point of tangency) and
-'	w is the linear weight ot the mooring chain.
-'	In the following, (L-A)/Y = k
+'	 X is the horizontal distance of the mooring line tangent point to the vessel and
+'	 c = H/w, where
+'	   H is the horizontal component of the chain tension at the reel (constant along the line to the point of tangency) and
+'	   w is the linear weight ot the mooring chain.
 '
 '	Equation (1) is solved for its root ξ using Newton-Raphson (N-R) by re-writing it as
 '		g(ξ)  = (sinh(ξ) - ξ) / (cosh(ξ) - 1) - k  =  f(ξ) - k
@@ -40,7 +40,7 @@ function SXC(Y as double, A as double, L as double, optional Seed as double)
 '	Modification on 10-Jun-2009 - (added N-R)
 '	Modification on  13-Jun-2009 - (added Lmin)
 '	Last Modification  29-Dec-2023 - (some improvements)
-
+'
 '	GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 '	The GNU General Public License is a free, copyleft license for software and other kinds of works.
 
@@ -52,9 +52,14 @@ function SXC(Y as double, A as double, L as double, optional Seed as double)
 	dim S as double ' Length of the suspended cable
 	dim X as double ' Distance ot the Tangency point
 	dim C as double ' Ratio H/w
+
+on error goto E
+	goto A	
+E:		print "Some error ocurred. Do a debug for the case"
+		exit function
 	
+A:	k = (L-A)/Y
 	if IsMissing(Seed)  or Seed< 0.001 then Seed = 0.001 'although the seed could be zero, it would cause an error in the calculation of the fractional error
-	k = (L-A)/Y
 	Xi = Seed
 	icount = 0
 	do
@@ -73,7 +78,7 @@ function SXC(Y as double, A as double, L as double, optional Seed as double)
 	SXC = Array(XI, S, X, C, sinh(XI), icount, (L-A)-(S-X)) 'the function return an array containing all the parameters calculated
 end function
 
-' The following two functions are defined to be used in the Newton-Raphson scheme used in the function SXC above
+' The following two functions are defined for the Newton-Raphson scheme used in the function SXC above
 function f(x) as double
 	f = 0.0
 	if x<>0.0 then f= ( (sinh(x) - x) / (cosh(x) - 1.0) )
