@@ -32,6 +32,8 @@ function SXC(Y as double, A as double, L as double, optional Seed as double)
 '	Note also that the following relationship exist:  L-A = S-X
 '
 '	For a full description of these functions, please see the preprint in ResearchGate DOI: 10.13140/RG.2.2.26286.48965
+'	https://doi.org/10.13140/RG.2.2.26286.48965
+'
 '	LicenseCC BY-NC-SA 4.0
 '
 '	🄯 Jorge Hygino Braga Sampaio Jr.
