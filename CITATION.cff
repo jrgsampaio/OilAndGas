@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Sampaio Jr"
+  given-names: "Jorge H B"
+  orcid: 
+title: Single Point Anchor Mooring code
+version: 1.0.0
+doi: 10.13140/RG.2.2.26286.48965
+date-released: 2023-12-29
+url: https://github.com/jrgsampaio/OilAndGas/blob/b182b7ae06589123984e118cd36ff6b0e4bc0d1f/Single%20Point%20Anchor%20Mooring%20code
