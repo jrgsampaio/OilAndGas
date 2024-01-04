@@ -23,7 +23,7 @@
 #
 '''
     This function and the companions solves the Single Point Anchor
-    Mooring problem for a homogeneous chain (constant linear weight).
+    Mooring problem for a homogeneous cable (constant linear weight).
     The solution is based on finding the root of the following function:
         (L-A)/Y = (sinh(ξ)-ξ)/(cosh(ξ)-1)	(1)
     where
@@ -81,16 +81,16 @@ def scx(y, a, l):
     xi = k
     icount = 0
     while True:	
-        icount =+ 1
+        icount += 1
         if icount > MAXIT:
             return -1
 
         oldxi = xi
 
         xi = xi - (__f(xi)-k) / (__df(xi))
-        
+
         if m.fabs( xi/oldxi - 1) < TOL :
-        break
+            break
     c = y/(m.cosh(xi) - 1)
     s = c * m.sinh(xi)
     x = c * xi
@@ -102,7 +102,7 @@ def scx(y, a, l):
 def __f(z):
     f = 0
     if (z != 0): 
-    f = (m.sinh(z) - z) / (m.cosh (z) - 1)
+        f = (m.sinh(z) - z) / (m.cosh (z) - 1)
     return f
     
 def __df(z) :
@@ -128,7 +128,7 @@ def lmin(y, a):
     icount = 0
 
     while True:
-        icount =+ 1
+        icount += 1
         if icount > MAXIT:
             return -1
 
