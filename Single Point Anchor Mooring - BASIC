@@ -7,17 +7,17 @@ function SXC(Y as double, A as double, L as double, optional Seed as double)
 '	The solution is based on finding the root of the following function:
 '		k = (sinh(ξ)-ξ)/(cosh(ξ)-1)	(1)
 '	where
-'	L = length of the mooring line (can be changed)
-'	A = horizontal departure of the anchor to the ship reel (can change with the motion of the vessel)
+'	L = length of the mooring cable (can be changed)
+'	A = horizontal departure of the anchor to the vessel's winch (can change with the motion of the vessel)
 '	Y = anchor depth (considered contant, although it might change with tide)
 '	k = (L-A)/Y = k
 '	ξ = X/c where
-'	 X is the horizontal distance of the mooring line tangent point to the vessel and
+'	 X is the horizontal distance of the mooring cable tangent point to the vessel
 '	 c = H/w, where
-'	   H is the horizontal component of the chain tension at the reel (constant along the line to the point of tangency) and
-'	   w is the linear weight ot the mooring chain.
+'	   H is the horizontal component of the chain tension at the winch (constant along the cable to the point of tangency) and
+'	   w is the linear weight ot the mooring cable.
 '
-'	Equation (1) is solved for its root ξ using Newton-Raphson (N-R) by re-writing it as
+'	Equation (1) is solved for its root ξ using Newton-Raphson (N-R) by re-aranging it as
 '		g(ξ)  = (sinh(ξ) - ξ) / (cosh(ξ) - 1) - k  =  f(ξ) - k
 '	For N-R, I use its derivative
 '	g'(ξ) = f'(ξ) = 1 -  (sinh(ξ) × (sinh(ξ) - ξ)) / (cosh(ξ) - 1)²
@@ -26,15 +26,15 @@ function SXC(Y as double, A as double, L as double, optional Seed as double)
 '		X = c×ξ
 '		S = c×sinh(ξ)
 '		H = w×c
-'	where
-'		X, c, H,  and w are defined above
-'		S is the length os the suspended mooring line (from the vessel reel to the contact point).
+'               where
+'               X, c, H,  and w are defined above
+'		S is the length os the suspended mooring cable (from the vessel winch to the contact point).
 '	Note also that the following relationship exist:  L-A = S-X
 '
 '	For a full description of these functions, please see the preprint in ResearchGate DOI: 10.13140/RG.2.2.26286.48965
 '	https://doi.org/10.13140/RG.2.2.26286.48965
 '
-'	LicenseCC BY-NC-SA 4.0
+'	License CC BY-NC-SA 4.0
 '
 '	🄯 Jorge Hygino Braga Sampaio Jr.
 '	jrgsampaio@gmail.com
