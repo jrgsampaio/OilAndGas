@@ -3,7 +3,7 @@ option explicit
 ' This code is written in LibreOffice Macro Basic. It can be used in Excel with minimum or no adaptation.
 ' In LibreOffice, the functions SINH and COSH must be defined - If needed, contact me.
 function SXC(Y as double, A as double, L as double, optional Seed as double)
-'	This function solves the Single Point Anchor Mooring problem for a homogeneous chain (constant linear weight).
+'	This function solves the Single Point Anchor Mooring problem for a homogeneous calbe (constant linear weight).
 '	The solution is based on finding the root of the following function:
 '		k = (sinh(ξ)-ξ)/(cosh(ξ)-1)	(1)
 '	where
