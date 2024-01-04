@@ -1,0 +1,141 @@
+#  --- PYTHON 3 ---
+# -*- coding: utf-8 -*-
+#
+#  mooring.py
+#  
+#  Copyright 2024 Jorge Sampaio jrgsampaio@gmail.com
+#  
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#  
+#
+'''
+	This function and the companions solves the Single Point Anchor
+	Mooring problem for a homogeneous chain (constant linear weight).
+	The solution is based on finding the root of the following function:
+		(L-A)/Y = (sinh(ξ)-ξ)/(cosh(ξ)-1)	(1)
+	where
+	L = length of the mooring line (can be changed)
+	A = horizontal departure of the anchor to the ship reel (can change
+		with the motion of the vessel)
+	Y = anchor depth (considered contant, although it might change with
+		tide)
+	In the following, (L-A)/Y = k
+	ξ = X/c where
+		X is the horizontal distance of the mooring line tangent point
+			to the vessel and
+		c = H/w, where
+			H is the horizontal component of the chain tension at the
+				reel (constant along the line to the point of tangency)
+			w is the linear weight ot the mooring chain.
+	Equation (1) is solved for its root ξ using Newton-Raphson (N-R) by
+			re-writing it as
+		g(ξ)  = (sinh(ξ) - ξ) / (cosh(ξ) - 1) - k  =  f(ξ) - k
+	For N-R, I use its derivative
+		g'(ξ) = f'(ξ) = 1 -  (sinh(ξ) × (sinh(ξ) - ξ)) / (cosh(ξ) - 1)²
+	When ξ is found, the mooring parameters are obtained from:
+		c = Y/(cosh(ξ)-1)
+		X = c×ξ
+		S = c×sinh(ξ)
+		H = w×c
+		where
+			X, c, H,  and w are defined above
+			S is the length os the suspended mooring cable (from th
+				vessel mooring winch to the contact point)
+	Note also that the following relationship exist:  L-A = S-X
+
+	For a full description of these functions, please see the preprint
+		in ResearchGate DOI: 10.13140/RG.2.2.26286.48965
+	https://doi.org/10.13140/RG.2.2.26286.48965
+
+	License CC BY-NC-SA 4.0
+
+	🄯 Jorge Hygino Braga Sampaio Jr.
+	jrgsampaio@gmail.com
+	Created on 04-Jan-2023
+
+	GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
+	The GNU General Public License is a free, copyleft license for
+		software and other kinds of works.
+'''
+import math as m
+
+def scx(y, a, l):
+    MAXIT = 100
+    TOL = 1e-6
+
+    k = (l-a) / y
+
+    xi = k
+    icount = 0
+    while True:	
+        icount =+ 1
+        if icount > MAXIT:
+            return -1
+
+        oldxi = xi
+
+        xi = xi - (__f(xi)-k) / (__df(xi))
+
+        if m.fabs( xi/oldxi - 1) < TOL :
+            break
+    c = y/(m.cosh(xi) - 1)
+    s = c * m.sinh(xi)
+    x = c * xi
+    return xi , s, x, c, m.sinh(xi), icount, (l-a) - (s-x)
+
+#	The following two internal functions are defined for the
+#	Newton-Raphson scheme used in the function SXC above
+
+def __f(z):
+    f = 0
+    if (z != 0): 
+        f = (m.sinh(z) - z) / (m.cosh (z) - 1)
+    return f
+
+def __df(z) :	
+    df = 1/3
+    if (z != 0):
+        df = 1 - m.sinh(z) * (m.sinh(z) - z) / (m.cosh(z) - 1)**2
+    return df
+	
+#-----------------------------------------------------------------------	
+
+'''
+	This is a companion function to the SXC function above. 
+	It calculates the minimum length of a mooring cable such that the
+	tangent point is close to or at the position of the anchor.
+'''
+def lmin(y, a):
+
+    MAXIT = 100
+    TOL = 1e-6
+
+    xi= 1
+    icount = 0
+
+    while True:
+        icount =+ 1
+        if icount > MAXIT:
+	        return -1
+        oldxi = xi
+
+        # Newton-Raphson scheme
+        xi = xi - (a/y * (m.cosh(xi) - 1) - xi) / (a/y * m.sinh(xi) - 1)
+
+        if m.fabs(xi/oldxi - 1) < TOL:
+            break
+
+    return a/xi * m.sinh(xi), icount
