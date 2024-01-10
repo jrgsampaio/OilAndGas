@@ -30,7 +30,7 @@ end function
 
 private function dDAK(byval z as double, byval Pr as double, byval Tr as double) as double
 '  This is the Dranchuk-Abou-Kassem Correlation
-'  This function is the derivative of the function DAK, to be used in the N-R method
+'  This function is the derivative of the function DAK, used in the N-R method
 	dim V0 as double : V0 = 0.27*Pr/Tr
 	dim V1 as double : V1 =  (A1+A2/Tr+A3/Tr^3+A4/Tr^4+A5/Tr^5) * V0
 	dim V2 as double : V2 = (A6+A7/Tr+A8/Tr^2) * V0^2
@@ -63,10 +63,10 @@ function zfactorDAK(Pr as double, Tr as double, optional Seed as double, optiona
 '	Review on: 22-December-2023 (optional Seed as the initial value for z
 '	Review on: 22-December-2023 (introduved the private function DAK to promote the use of the Newton-Raphson scheme)
 '	Review on: 22-December-2023 (Newton-Raphson method introduced to replace the simple Substitution scheme)
+'	Review on: 10-January-2024 (replaced approximate derivative by exact derivative)
 '			The function to find the root is g(z) = f(z)- z where z depends on itself by the function f(z)
 '			The N-R method uses the iteration  zₙ₊₁ = zₙ - g(zₙ)/g'(zₙ)
-'			where the derivative g'(zₙ) is approximated by the central derivative
-'				g'(zₙ) = f'(zₙ) - 1 = (f(zₙ+ε) - f(zₙ-ε))/2ε 
+'			where g'(zₙ) is the analytic derivative of g(zₙ)
 '
 '	GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 '	The GNU General Public License is a free, copyleft license for software and other kinds of works.
